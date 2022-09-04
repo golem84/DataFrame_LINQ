@@ -1,6 +1,8 @@
-﻿namespace DFrameLib
+﻿using System.Data;
+
+namespace DFrameLib
 {
-    public class DFrame
+    public class DFrame : DataTable
     {
 
     }
