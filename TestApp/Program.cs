@@ -14,28 +14,14 @@ internal class Program
             Console.WriteLine("Excel is not installed!");
             return;
         }
-
-        string path = Path.GetDirectoryName(typeof(Program).Assembly.Location);
-        //Console.WriteLine(path);
+        // файл находится в одной папке с программой
+        string path = Path.GetDirectoryName(typeof(Program).Assembly.Location); 
+        
         Excel.Workbook wb = exApp.Workbooks.Open(path + "\\Book1.xlsx");
         Excel.Worksheet ws = wb.Sheets[1];
         int maxrow = ws.UsedRange.Rows.Count;
         int maxcol = ws.UsedRange.Columns.Count;
-        /*
-        var usedRange = ws.
-        var lastRow = usedRange.Rows.Count;
-        var lastCol = usedRange.Columns.Count;
-        */
-        /*
-        try
-        {
-            Console.WriteLine(s);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-        */
+        
         for( int i =1; i<=maxrow; i++)
         {
             for (int j = 1; j <=maxcol; j++)
