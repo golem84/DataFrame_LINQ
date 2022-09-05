@@ -6,15 +6,14 @@ namespace DFrameLib
     public class DFrame : DataTable
     {
         // добавить колонку (именованная типизированная, именованная с массивом данных)
-        //public void AddCol(string _name) => this.Columns.Add(_name);
         public void AddCol(string _name, Type _type) => this.Columns.Add(_name, _type);
         public void AddCol(string _name, object[] item)
         {
             this.Columns.Add(_name);
             this.AddItemToCol(_name, item);
         }
-        
-        public void AddItemToCol(string colname, object[] item) // добавить item в столбец colname
+        // добавить item в столбец colname
+        public void AddItemToCol(string colname, object[] item) 
         {
             DataRow newrow;
             for (int i = 0; i < item.Length; i++)
@@ -32,10 +31,23 @@ namespace DFrameLib
                 }
             }
         }
-
         // Добавляем массив объектов как новую строку в таблицу
-        public void AddRow(object[] row ) => this.Rows.Add(row); 
-        
+        public void AddRow(object[] row ) => this.Rows.Add(row);
+        // печать всей таблицы
+        public void PrintTable()
+        {
+            for (int i = 0; i<this.Columns.Count; i++)
+                Console.Write($"{this.Columns[i].ColumnName}\t");
+            Console.WriteLine();
+            for (int i = 0; i < this.Rows.Count; i++)
+            {
+                DataRow row = this.Rows[i];
+                for (int j=0;j<row.Table.Columns.Count;j++)
+                    Console.Write($"{row[j]}\t");
+                Console.WriteLine();
+            }                   
+            
+        }
         
 
 

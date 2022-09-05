@@ -43,12 +43,16 @@ internal class Program
             //df.Rows.Add(row);
             df.AddRow(row);
         }
-        
+        /*
         Console.WriteLine("Вывод всех столбцов без заголовков:");
         var items = df.Select();
         foreach (var b in items) Console.WriteLine("{0}\t{1}\t{2}", 
             b["id"], b["Age"], b["Name"]);
-        
+        */
+        Console.WriteLine("Вывод таблицы:");
+        //DataView dview = new DataView(df);
+        df.PrintTable();
+
         Console.WriteLine("Выбор строк, где Age >= 24:");
         string expr = "Age >= 24";
         DataRow[] foundRows = df.Select(expr);
@@ -61,10 +65,9 @@ internal class Program
         for (int i = 0; i < foundRows2.Length; i++)
             Console.WriteLine(foundRows2[i][0] + "\t" + 
                 foundRows2[i][1] + "\t" + foundRows2[i][2]);
-       
 
 
-
+        
 
         Console.WriteLine("end.");
         Console.ReadLine();
