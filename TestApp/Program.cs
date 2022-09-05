@@ -52,15 +52,17 @@ internal class Program
         Console.WriteLine("Вывод таблицы:");
         //DataView dview = new DataView(df);
         df.PrintTable();
-
-        Console.WriteLine("Выбор строк, где Age >= 24:");
-        string expr = "Age >= 24";
+        /*
+        Console.WriteLine("Выбор строк, где DateBirth >= 01.01.1999:");
+        string expr = "DateBirth >= 01/01/1999";
         DataRow[] foundRows = df.Select(expr);
         for (int i = 0; i < foundRows.Length; i++) 
             Console.WriteLine($"{foundRows[i][0]}\t{foundRows[i][1]}");
-        
+        */
+
+        // реализовать при помощи DataView
         Console.WriteLine("Выбор строк, где Name = 'Ann':");
-        expr = "Name = 'Ann'";
+        var expr = "Name = 'Ann'";
         DataRow[] foundRows2 = df.Select(expr);
         for (int i = 0; i < foundRows2.Length; i++)
             Console.WriteLine(foundRows2[i][0] + "\t" + 

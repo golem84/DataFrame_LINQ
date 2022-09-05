@@ -1,11 +1,14 @@
 ﻿using System.Data;
+using System;
 // нельзя в библиотеку добавить ссылку для использования COM объектов.
 
 namespace DFrameLib
 {
     public class DFrame : DataTable
     {
-        // добавить колонку (именованная типизированная, именованная с массивом данных)
+        // добавить колонку:
+        // * именованная типизированная пустая,
+        // * именованная с массивом данных без проверки на тип??? - исправить?
         public void AddCol(string _name, Type _type) => this.Columns.Add(_name, _type);
         public void AddCol(string _name, object[] item)
         {
@@ -36,19 +39,38 @@ namespace DFrameLib
         // печать всей таблицы
         public void PrintTable()
         {
+            Console.WriteLine();
+            Console.ForegroundColor=ConsoleColor.Blue;
             for (int i = 0; i<this.Columns.Count; i++)
                 Console.Write($"{this.Columns[i].ColumnName}\t");
             Console.WriteLine();
+            Console.ResetColor();
             for (int i = 0; i < this.Rows.Count; i++)
             {
                 DataRow row = this.Rows[i];
-                for (int j=0;j<row.Table.Columns.Count;j++)
-                    Console.Write($"{row[j]}\t");
+                for (int j = 0; j < row.Table.Columns.Count; j++)
+                {
+                    if (this.Columns[j].DataType != typeof(DateTime))
+                        Console.Write($"{row[j]}\t");
+                    else
+                    {
+                        DateTime d = (DateTime)row[j];
+                        Console.Write($"{d.ToShortDateString()}\t");
+                    }
+                }
                 Console.WriteLine();
-            }                   
-            
+            }
+            // вывод типа столбцов
+            /*
+            for (int i = 0; i < this.Columns.Count; i++)
+                Console.Write($"{this.Columns[i].DataType}\t");               
+            Console.WriteLine();
+            */
+            Console.WriteLine();
         }
         
+
+
 
 
 
