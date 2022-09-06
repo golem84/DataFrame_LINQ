@@ -60,15 +60,40 @@ namespace DFrameLib
                 }
                 Console.WriteLine();
             }
-            // вывод типа столбцов
-            /*
-            for (int i = 0; i < this.Columns.Count; i++)
-                Console.Write($"{this.Columns[i].DataType}\t");               
+                // вывод типа столбцов
+                /*
+                for (int i = 0; i < this.Columns.Count; i++)
+                    Console.Write($"{this.Columns[i].DataType}\t");               
+                Console.WriteLine();
+                */
+                Console.WriteLine();
+        }
+
+        public void PrintView(DataView t)
+        {
             Console.WriteLine();
-            */
+            Console.ForegroundColor = ConsoleColor.Red;
+            for (int i = 0; i < t.Table.Columns.Count; i++)
+                Console.Write($"{t.Table.Columns[i].ColumnName}\t");
+            Console.WriteLine();
+            Console.ResetColor();
+            for (int i = 0; i < t.Table.Rows.Count; i++)
+            {
+                DataRow row = t.Table.Rows[i];
+                for (int j = 0; j < row.Table.Columns.Count; j++)
+                {
+                    if (t.Table.Columns[j].DataType != typeof(DateTime))
+                        Console.Write($"{row[j]}\t");
+                    else
+                    {
+                        DateTime d = (DateTime)row[j];
+                        Console.Write($"{d.ToShortDateString()}\t");
+                    }
+                }
+                Console.WriteLine();
+            }
             Console.WriteLine();
         }
-        
 
 
 

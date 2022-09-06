@@ -1,15 +1,16 @@
 ﻿using DFrameLib;
 //using Microsoft.Office.Tools.Excel;
-using Microsoft.Office.Interop.Excel;
 using System.Data;
-using Excel = Microsoft.Office.Interop.Excel;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
+        
         var df = new DFrame();
         // подключаемся к Excel
+
+        /*
         Application exApp = new Application();
         System.Diagnostics.Process excelProc = 
             System.Diagnostics.Process.GetProcessesByName("EXCEL").Last();
@@ -43,6 +44,27 @@ internal class Program
             //df.Rows.Add(row);
             df.AddRow(row);
         }
+        */
+
+        // заполнение таблицы программным способом
+        {
+            df.Columns.Add("Id", typeof(int));
+            df.Columns.Add("Name", typeof(string));
+            df.Columns.Add("DateBirth", typeof(DateTime));
+            df.Columns.Add("Pet", typeof(string));
+
+            df.AddRow(new object[] { 1, "Ann", DateTime.Parse("01.01.2002"), "dog" });
+            df.AddRow(new object[] { 7, "Mary", DateTime.Parse("25.12.1997"), "cat" });
+            df.AddRow(new object[] { 10, "John", DateTime.Parse("14.07.2005"), "dog" });
+            df.AddRow(new object[] { 11, "Alex", DateTime.Parse("08.03.1995"), "" });
+            df.AddRow(new object[] { 14, "Mary", DateTime.Parse("11.11.1990"), "" });
+            df.AddRow(new object[] { 9, "Ann", DateTime.Parse("03.02.1993"), "cat" });
+        }
+        var view1 = new DataView(df);
+            df.PrintView(view1);
+
+
+
         /*
         Console.WriteLine("Вывод всех столбцов без заголовков:");
         var items = df.Select();
@@ -51,7 +73,7 @@ internal class Program
         */
         Console.WriteLine("Вывод таблицы:");
         //DataView dview = new DataView(df);
-        df.PrintTable();
+        //df.PrintTable();
         /*
         Console.WriteLine("Выбор строк, где DateBirth >= 01.01.1999:");
         string expr = "DateBirth >= 01/01/1999";
@@ -65,15 +87,16 @@ internal class Program
         var expr = "Name = 'Ann'";
         DataRow[] foundRows2 = df.Select(expr);
         for (int i = 0; i < foundRows2.Length; i++)
-            Console.WriteLine(foundRows2[i][0] + "\t" + 
+            Console.WriteLine(foundRows2[i][0] + "\t" +
                 foundRows2[i][1] + "\t" + foundRows2[i][2]);
 
 
-        
+
 
         Console.WriteLine("end.");
         Console.ReadLine();
         // close Excel process
+        /*
         {
             ws = null;
             wb.Close(false, Type.Missing, Type.Missing);
@@ -85,5 +108,6 @@ internal class Program
             System.GC.Collect();
             excelProc.Kill();
         }
+        */
     }
 }
