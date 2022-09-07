@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System;
+using System.Net.Security;
 // нельзя в библиотеку добавить ссылку для использования COM объектов.
 
 namespace DFrameLib
@@ -36,10 +37,15 @@ namespace DFrameLib
         }
         // Добавляем массив объектов как новую строку в таблицу
         public void AddRow(object[] row ) => this.Rows.Add(row);
-        // печать всей таблицы
+        // печать таблицы (синие заголовки)
         public void PrintTable()
         {
-            Console.WriteLine();
+            if (this.Columns.Count == 0)    // если нет данных, не выводим
+            {
+                Console.WriteLine("This view has no columns. Nothing to display.");
+                return;
+            }
+
             Console.ForegroundColor=ConsoleColor.Blue;
             for (int i = 0; i<this.Columns.Count; i++)
                 Console.Write($"{this.Columns[i].ColumnName}\t");
@@ -60,18 +66,15 @@ namespace DFrameLib
                 }
                 Console.WriteLine();
             }
-                // вывод типа столбцов
-                /*
-                for (int i = 0; i < this.Columns.Count; i++)
-                    Console.Write($"{this.Columns[i].DataType}\t");               
-                Console.WriteLine();
-                */
-                Console.WriteLine();
         }
-
+        // печать отображения (красные заголовки)
         public void PrintView(DataView t)
         {
-            Console.WriteLine();
+            if (t.Table.Columns.Count == 0)     // если нет данных, не выводим
+            { 
+                Console.WriteLine("This view has no columns. Nothing to display."); 
+                return; 
+            }
             Console.ForegroundColor = ConsoleColor.Red;
             for (int i = 0; i < t.Table.Columns.Count; i++)
                 Console.Write($"{t.Table.Columns[i].ColumnName}\t");
@@ -95,8 +98,33 @@ namespace DFrameLib
             Console.WriteLine();
         }
 
+        // выбор столбцов по именам
+        // используем копию исходной таблицы
+        public void SelectColByName(params string[] names)
+        { 
+            var allnames = "";
+            foreach (string name in names) allnames += name;
+            
+            DataTable newtable = this.Clone(); // копируем структуру исходной таблицы в новую таблицу
+            foreach (DataRow row in this.Rows) // копируем данные из исходной таблицы
+            {
+                var newrow = newtable.Rows.Add();
+                for (int i = 0; i < row.Table.Columns.Count; i++) newrow[i] = row[i];
+            }
 
-
+            DataView v = new DataView(newtable); // для новой таблицы создаем отображение
+        newsearch:
+            for (int i = 0; i < v.Table.Columns.Count; i++) // ищем по новой таблице стобцы
+            {
+                if (!allnames.Contains(v.Table.Columns[i].ColumnName))
+                {
+                    v.Table.Columns.RemoveAt(i);    // удаляем ненужные столбцы
+                    goto newsearch;                 // смотрим таблицу сначала, поскольку она изменилась
+                }                
+            }
+            PrintView(v);
+            // можно добавить метод для возврата новой таблицы или ее отображения вместо печати
+        }
 
 
     }

@@ -19,22 +19,25 @@ internal class Program
             Console.WriteLine("Excel is not installed!");
             return;
         }
+
         // файл находится в одной папке с программой
         string path = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+
         // настраиваем переменные для работы с Excel
         Workbook wb = exApp.Workbooks.Open(path + @"\Book1.xlsx");
         Worksheet ws = wb.Sheets[1]; // нумерация листов начинается с 1
         int maxrow = ws.UsedRange.Rows.Count;
         int maxcol = ws.UsedRange.Columns.Count;
 
-        Console.WriteLine("Создаем колонки, присваиваем тип данных.");
+        // Console.WriteLine("Создаем колонки, присваиваем тип данных.");
         //List<string> colnames = new List<string>();
         for (int i = 1; i <= maxcol; i++) 
             df.AddCol(ws.Cells[1, i].Value.ToString(), 
                 ws.Cells[2, i].Value.GetType());
         Console.WriteLine("Читаем данные в объект DFrame.");
 
-        object[] row = new object[maxcol];
+        // читаем данные из Excel
+        object[] row = new object[maxcol;
         for (int j = 2; j <= maxrow; j++)
         {
             for (int i = 1; i <= maxcol; i++)
@@ -60,10 +63,20 @@ internal class Program
             df.AddRow(new object[] { 14, "Mary", DateTime.Parse("11.11.1990"), "" });
             df.AddRow(new object[] { 9, "Ann", DateTime.Parse("03.02.1993"), "cat" });
         }
-        var view1 = new DataView(df);
-            df.PrintView(view1);
+        Console.WriteLine("Вывод таблицы:");
+        df.PrintTable();
 
+        //Console.WriteLine("Вывод представления со столбцами 'Name', 'Pet'");
+        Console.Write("Введите имена столбцов для отображения через пробел: ");
+        string e = Console.ReadLine();
+        string[] t = e.Split(" ");
+        
 
+        df.SelectColByName(t);
+        //df.PrintView(v);
+
+        Console.WriteLine("Исходная таблица не повреждена:");
+        df.PrintTable();
 
         /*
         Console.WriteLine("Вывод всех столбцов без заголовков:");
@@ -71,7 +84,7 @@ internal class Program
         foreach (var b in items) Console.WriteLine("{0}\t{1}\t{2}", 
             b["id"], b["Age"], b["Name"]);
         */
-        Console.WriteLine("Вывод таблицы:");
+
         //DataView dview = new DataView(df);
         //df.PrintTable();
         /*
@@ -82,19 +95,21 @@ internal class Program
             Console.WriteLine($"{foundRows[i][0]}\t{foundRows[i][1]}");
         */
 
-        // реализовать при помощи DataView
+        // Выбор строк без метода
+        /*
         Console.WriteLine("Выбор строк, где Name = 'Ann':");
         var expr = "Name = 'Ann'";
         DataRow[] foundRows2 = df.Select(expr);
         for (int i = 0; i < foundRows2.Length; i++)
             Console.WriteLine(foundRows2[i][0] + "\t" +
                 foundRows2[i][1] + "\t" + foundRows2[i][2]);
-
-
+        */
+        Console.WriteLine();
+        
 
 
         Console.WriteLine("end.");
-        Console.ReadLine();
+        //Console.ReadLine();
         // close Excel process
         /*
         {
