@@ -22,7 +22,7 @@ internal class Program
         string path = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
         // настраиваем переменные для работы с Excel
-        Workbook wb = exApp.Workbooks.Open(path + @"\Book1.xlsx");
+        Workbook wb = exApp.Workbooks.Open(path + $@"\{fname}");
         Worksheet ws = wb.Sheets[1]; // нумерация листов начинается с 1
         int maxrow = ws.UsedRange.Rows.Count;
         int maxcol = ws.UsedRange.Columns.Count;
