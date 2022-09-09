@@ -4,13 +4,11 @@ using System.Data;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    static DFrame GetDataFromExcel(string fname)
     {
-        
-        var df = new DFrame();
         // подключаемся к Excel
 
-        /*
+        
         Application exApp = new Application();
         System.Diagnostics.Process excelProc = 
             System.Diagnostics.Process.GetProcessesByName("EXCEL").Last();
@@ -29,15 +27,17 @@ internal class Program
         int maxrow = ws.UsedRange.Rows.Count;
         int maxcol = ws.UsedRange.Columns.Count;
 
+        var df1 = new DFrame();
+
         // Console.WriteLine("Создаем колонки, присваиваем тип данных.");
         //List<string> colnames = new List<string>();
         for (int i = 1; i <= maxcol; i++) 
-            df.AddCol(ws.Cells[1, i].Value.ToString(), 
+            df1.AddCol(ws.Cells[1, i].Value.ToString(), 
                 ws.Cells[2, i].Value.GetType());
         Console.WriteLine("Читаем данные в объект DFrame.");
 
         // читаем данные из Excel
-        object[] row = new object[maxcol;
+        object[] row = new object[maxcol];
         for (int j = 2; j <= maxrow; j++)
         {
             for (int i = 1; i <= maxcol; i++)
@@ -45,9 +45,17 @@ internal class Program
                 row[i - 1] = ws.Cells[j, i].Value;
             }
             //df.Rows.Add(row);
-            df.AddRow(row);
+            df1.AddRow(row);
         }
-        */
+        return df1;
+
+    }
+    
+    private static void Main(string[] args)
+    {
+        
+        var df = new DFrame();
+        
 
         // заполнение таблицы программным способом
         {
