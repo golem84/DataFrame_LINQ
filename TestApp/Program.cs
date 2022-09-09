@@ -78,13 +78,17 @@ internal class Program
         Console.Write("Введите имена столбцов для отображения через пробел: ");
         string e = Console.ReadLine();
         string[] t = e.Split(" ");
-        
+        //df.SelectColByName(t);
+        df.SelectColumns(t);
 
-        df.SelectColByName(t);
-        //df.PrintView(v);
+        // Выборка строк
+        Console.WriteLine("Строки, где Name = 'Mary':");
+        df.SelectRows("Name = 'Mary'");
+        Console.WriteLine("Строки, где Pet = 'Cat', сортировка по убыванию по полю Id:");
+        df.SelectRows("Pet = 'Cat'", "Id DESC");
 
-        Console.WriteLine("Исходная таблица не повреждена:");
-        df.PrintTable();
+        //Console.WriteLine("Исходная таблица не повреждена:");
+        //df.PrintTable();
 
         /*
         Console.WriteLine("Вывод всех столбцов без заголовков:");
@@ -113,6 +117,7 @@ internal class Program
                 foundRows2[i][1] + "\t" + foundRows2[i][2]);
         */
         Console.WriteLine();
+
         // переименование столбцов
         var dict = new Dictionary<string, string>()
         {
@@ -122,7 +127,6 @@ internal class Program
         };
         df.RenameColumns(dict);
         Console.WriteLine("Переименование трех столбцов, вывод:");
-        
         df.PrintTable();
 
         Console.WriteLine("end.");
