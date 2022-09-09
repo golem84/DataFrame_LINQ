@@ -125,7 +125,14 @@ namespace DFrameLib
             PrintView(v);
             // можно добавить метод для возврата новой таблицы или ее отображения вместо печати
         }
-
+        public void RenameColumns(Dictionary<string, string> newnames)
+        {
+            foreach (var n in newnames)
+            {
+                for (int i = 0; i < this.Columns.Count; i++)
+                    if (this.Columns[i].ColumnName == n.Key) this.Columns[i].ColumnName = n.Value;
+            }
+        }
 
     }
 }

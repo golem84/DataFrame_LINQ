@@ -1,5 +1,5 @@
 ﻿using DFrameLib;
-//using Microsoft.Office.Tools.Excel;
+using Excel = Microsoft.Office.Interop.Excel;
 using System.Data;
 
 internal class Program
@@ -9,21 +9,21 @@ internal class Program
         // подключаемся к Excel
 
         
-        Application exApp = new Application();
+        Excel.Application exApp = new Excel.Application();
         System.Diagnostics.Process excelProc = 
             System.Diagnostics.Process.GetProcessesByName("EXCEL").Last();
         if (exApp == null)
         {
             Console.WriteLine("Excel is not installed!");
-            return;
+            return null;
         }
 
         // файл находится в одной папке с программой
         string path = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
         // настраиваем переменные для работы с Excel
-        Workbook wb = exApp.Workbooks.Open(path + $@"\{fname}");
-        Worksheet ws = wb.Sheets[1]; // нумерация листов начинается с 1
+        Excel.Workbook wb = exApp.Workbooks.Open(path + $@"\{fname}");
+        Excel.Worksheet ws = wb.Sheets[1]; // нумерация листов начинается с 1
         int maxrow = ws.UsedRange.Rows.Count;
         int maxcol = ws.UsedRange.Columns.Count;
 
@@ -113,8 +113,17 @@ internal class Program
                 foundRows2[i][1] + "\t" + foundRows2[i][2]);
         */
         Console.WriteLine();
+        // переименование столбцов
+        var dict = new Dictionary<string, string>()
+        {
+            {"Id", "id" },
+            {"Name", "names" },
+            {"Pet", "pets" },
+        };
+        df.RenameColumns(dict);
+        Console.WriteLine("Переименование трех столбцов, вывод:");
         
-
+        df.PrintTable();
 
         Console.WriteLine("end.");
         //Console.ReadLine();
