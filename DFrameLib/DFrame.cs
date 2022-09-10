@@ -97,7 +97,16 @@ namespace DFrameLib
         public void SelectColumns(params string[] names)
         {
             DataView view = new DataView(this);
-            DataTable values = view.ToTable(true, names);
+            DataTable values;
+            try
+            {
+                values = view.ToTable(true, names);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
+            }
             view = new DataView(values);
             PrintView(view);
         }
@@ -149,6 +158,17 @@ namespace DFrameLib
                 for (int i = 0; i < this.Columns.Count; i++)
                     if (this.Columns[i].ColumnName == n.Key) this.Columns[i].ColumnName = n.Value;
             }
+        }
+
+        public void SelectRowsBy(params string[] par)
+        {
+            var query2 = from tab in this.AsEnumerable()
+                         where (tab.Field<string>("pets") == "dog") &&
+                             (tab.Field<DateTime>("DateBirth") > DateTime.Parse("1.1.2003"))
+                         select new { id = tab.Field<int>("id"), name = tab.Field<string>("names"), date = tab.Field<DateTime>("DateBirth") };
+            foreach (var q in query2)
+                Console.WriteLine("У {1} (id={0}) домашнее животное - собака. Его день рождения {2:d}", q.id, q.name, q.date);
+            Console.WriteLine();
         }
 
     }

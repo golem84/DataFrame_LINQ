@@ -1,6 +1,7 @@
 ﻿using DFrameLib;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Data;
+using Microsoft.Office.Interop.Excel;
 
 internal class Program
 {
@@ -48,15 +49,24 @@ internal class Program
             df1.AddRow(row);
         }
         return df1;
-
+        // close Excel process
+        {
+            ws = null;
+            wb.Close(false, Type.Missing, Type.Missing);
+            wb = null;
+            exApp.Quit();
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(exApp);
+            GC.Collect();
+            exApp = null;
+            System.GC.Collect();
+            excelProc.Kill();
+        }
     }
     
     private static void Main(string[] args)
     {
         
         var df = new DFrame();
-        
-
         // заполнение таблицы программным способом
         {
             df.Columns.Add("Id", typeof(int));
@@ -75,7 +85,7 @@ internal class Program
         df.PrintTable();
 
         //Console.WriteLine("Вывод представления со столбцами 'Name', 'Pet'");
-        Console.Write("Введите имена столбцов для отображения через пробел: ");
+        Console.Write("Введите имена столбцов через пробел для отображения: ");
         string e = Console.ReadLine();
         string[] t = e.Split(" ");
         //df.SelectColByName(t);
@@ -86,37 +96,6 @@ internal class Program
         df.SelectRows("Name = 'Mary'");
         Console.WriteLine("Строки, где Pet = 'Cat', сортировка по убыванию по полю Id:");
         df.SelectRows("Pet = 'Cat'", "Id DESC");
-
-        //Console.WriteLine("Исходная таблица не повреждена:");
-        //df.PrintTable();
-
-        /*
-        Console.WriteLine("Вывод всех столбцов без заголовков:");
-        var items = df.Select();
-        foreach (var b in items) Console.WriteLine("{0}\t{1}\t{2}", 
-            b["id"], b["Age"], b["Name"]);
-        */
-
-        //DataView dview = new DataView(df);
-        //df.PrintTable();
-        /*
-        Console.WriteLine("Выбор строк, где DateBirth >= 01.01.1999:");
-        string expr = "DateBirth >= 01/01/1999";
-        DataRow[] foundRows = df.Select(expr);
-        for (int i = 0; i < foundRows.Length; i++) 
-            Console.WriteLine($"{foundRows[i][0]}\t{foundRows[i][1]}");
-        */
-
-        // Выбор строк без метода
-        /*
-        Console.WriteLine("Выбор строк, где Name = 'Ann':");
-        var expr = "Name = 'Ann'";
-        DataRow[] foundRows2 = df.Select(expr);
-        for (int i = 0; i < foundRows2.Length; i++)
-            Console.WriteLine(foundRows2[i][0] + "\t" +
-                foundRows2[i][1] + "\t" + foundRows2[i][2]);
-        */
-        Console.WriteLine();
 
         // переименование столбцов
         var dict = new Dictionary<string, string>()
@@ -129,21 +108,35 @@ internal class Program
         Console.WriteLine("Переименование трех столбцов, вывод:");
         df.PrintTable();
 
+        // Использование LINQ
+        // LINQ.where 1 logic parameter
+        var query1 = from tab in df.AsEnumerable()
+                    where tab.Field<string>("pets") == "dog"
+                    select new { id = tab.Field<int>("id"), name = tab.Field<string>("names") };
+        foreach (var q in query1)
+            Console.WriteLine("У {1} (id={0}) домашнее животное - собака.", q.id, q.name);
+        Console.WriteLine();
+        
+        // LINQ.where 2 logic parameters
+        var query2 = from tab in df.AsEnumerable()
+                    where (tab.Field<string>("pets") == "dog") && 
+                        (tab.Field<DateTime>("DateBirth") > DateTime.Parse("1.1.2003"))
+                    select new { id = tab.Field<int>("id"), name = tab.Field<string>("names"), date = tab.Field<DateTime>("DateBirth") };
+        foreach (var q in query2)
+            Console.WriteLine("У {1} (id={0}) домашнее животное - собака. Его день рождения {2:d}", q.id, q.name, q.date);
+        Console.WriteLine();
+
+        // LINQ.groupby
+        var query3 = from tab in df.AsEnumerable()
+                     where tab.Field<string>("pets") == "dog"
+                     select new { id = tab.Field<int>("id"), name = tab.Field<string>("names") };
+        foreach (var q in query1)
+            Console.WriteLine("У {1} (id={0}) домашнее животное - собака.", q.id, q.name);
+        Console.WriteLine();
+
         Console.WriteLine("end.");
         //Console.ReadLine();
-        // close Excel process
-        /*
-        {
-            ws = null;
-            wb.Close(false, Type.Missing, Type.Missing);
-            wb = null;
-            exApp.Quit();
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(exApp);
-            GC.Collect();
-            exApp = null;
-            System.GC.Collect();
-            excelProc.Kill();
-        }
-        */
+        
+        
     }
 }
