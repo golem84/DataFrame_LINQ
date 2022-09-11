@@ -124,12 +124,12 @@ internal class Program
         df.GroupRowsByColname("pets");
         Console.WriteLine("LINQ.groupby 'names':");
         df.GroupRowsByColname("names");
-        /*
+        
         // LINQ.select
         Console.WriteLine("LINQ.select 'names':");
-        df.SelectColByName("names");
+        df.SelectItemsByColname("names");
 
-        df.SelectByColname2();
+        
 
         /*
         // LINQ.where 2 logic parameters

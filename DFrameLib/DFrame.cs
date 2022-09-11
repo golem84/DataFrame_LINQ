@@ -161,6 +161,8 @@ namespace DFrameLib
         }
 
         // using LINQ.where
+        // метод расширения WHERE выбирает данные и передает в виде коллекции DataRow исходной таблицы
+        // для удобства вывода коллекцию DataRow преобразуем в массив DataRow, метод для вывода реализован выше.
         // 1 logic parameter
         public void SelectRowsByColname(string colname, string s)
         {
@@ -184,16 +186,16 @@ namespace DFrameLib
                 Console.WriteLine($"{q.Key}");
                 PrintRows(q.ToArray());
             }
-            
-            
         }
 
-        /*
-        public void GroupRowsByColname(string colname)
+        // using LINQ.select
+        // метод расширения SELECT преобразует результаты выбора в новый формат (здесь - в строковый массив)
+        public void SelectItemsByColname(string colname)
         {
-            var query = this.AsEnumerable().
-
+            var query = this.AsEnumerable().Select(x => x.Field<string>(colname)).ToArray();
+            foreach (var q in query)
+                Console.WriteLine($"{q}");
         }
-        */
+        
     }
 }
