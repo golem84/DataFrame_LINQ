@@ -6,6 +6,7 @@ using System;
 
 internal class Program
 {
+    // печать массива строк без заголовков таблиц
     static private void PrintRows(DataRow[] rows)
     {
         if (rows.Length == 0)
@@ -27,7 +28,6 @@ internal class Program
         }
         Console.WriteLine();
     }
-
     // печать таблицы (синие заголовки)
     static public void PrintTableOrView(DataTable t)
     {
@@ -63,7 +63,7 @@ internal class Program
 
 
 
-    static DFrame GetDataFromExcel(string fname)
+    static void GetDataFromExcel(string fname, ref DFrame df1)
     {
         // подключаемся к Excel
 
@@ -74,7 +74,7 @@ internal class Program
         if (exApp == null)
         {
             Console.WriteLine("Excel is not installed!");
-            return null;
+            return ;
         }
 
         // файл находится в одной папке с программой
@@ -86,14 +86,14 @@ internal class Program
         int maxrow = ws.UsedRange.Rows.Count;
         int maxcol = ws.UsedRange.Columns.Count;
 
-        var df1 = new DFrame();
+        df1 = new DFrame();
 
         // Console.WriteLine("Создаем колонки, присваиваем тип данных.");
         //List<string> colnames = new List<string>();
         for (int i = 1; i <= maxcol; i++) 
             df1.AddCol(ws.Cells[1, i].Value.ToString(), 
                 ws.Cells[2, i].Value.GetType());
-        Console.WriteLine("Читаем данные в объект DFrame.");
+        // Console.WriteLine("Читаем данные в объект DFrame.");
 
         // читаем данные из Excel
         object[] row = new object[maxcol];
@@ -106,7 +106,7 @@ internal class Program
             //df.Rows.Add(row);
             df1.AddRow(row);
         }
-        return df1;
+        
         // close Excel process
         {
             ws = null;
@@ -119,7 +119,10 @@ internal class Program
             System.GC.Collect();
             excelProc.Kill();
         }
+        return ;
     }
+
+    private static DFrame df2 = new DFrame();
     
     private static void Main(string[] args)
     {
@@ -143,7 +146,14 @@ internal class Program
         }
         // вывод таблицы
         Console.WriteLine("Вывод таблицы:");
-        PrintTableOrView(df.AsDataView());
+        PrintTableOrView(df);
+        
+        Console.WriteLine("Создаем и заполняем новую таблицу из Excel");
+        GetDataFromExcel("Book1.xlsx", ref df2);
+        PrintTableOrView(df2);
+
+        Console.WriteLine("Объединение таблиц при помощи метода 'Merge' невозможно, поскольку типы данных у таблиц различны.");
+        Console.WriteLine("Далее работаем c первой таблицей, созданной из программы...");
 
         //Console.WriteLine("Вывод представления со столбцами 'Name', 'Pet'");
         //Console.Write("Введите имена столбцов через пробел для отображения: ");
@@ -158,39 +168,28 @@ internal class Program
         Console.WriteLine("Строки, где Pet = 'Cat' или Pet = '', сортировка по убыванию по полю Id:");
         PrintRows(df.SelectRows("Pet = 'Cat' or Pet = ''", "Id DESC"));
 
-        // переименование столбцов
-        var dict = new Dictionary<string, string>()
-        {
-            {"Id", "id" },
-            {"Name", "names" },
-            {"Pet", "pets" },
-        };
-        df.RenameColumns(dict);
-        Console.WriteLine("Переименование трех столбцов, вывод:");
-        PrintTableOrView(df);
-
         // LINQ.where
         Console.WriteLine("LINQ.where 1 logic parameter:");
-        PrintRows(df.SelectRowsByColname("pets", "cat"));
+        PrintRows(df.SelectRowsByColname("Pet", "cat"));
 
         Console.WriteLine("LINQ.where 2 logic parameters:");
-        PrintRows(df.SelectRowsByColname("pets", "cat", 3));
+        PrintRows(df.SelectRowsByColname("Pet", "cat", 3));
 
         // LINQ.groupby
-        Console.WriteLine("LINQ.groupby 'pets':");
-        df.GroupRowsByColname("pets");
-        Console.WriteLine("LINQ.groupby 'names':");
-        df.GroupRowsByColname("names");
+        Console.WriteLine("LINQ.groupby 'Pet':");
+        df.GroupRowsByColname("Pet");
+        Console.WriteLine("LINQ.groupby 'Name':");
+        df.GroupRowsByColname("Name");
         
         // LINQ.select
-        Console.WriteLine("LINQ.select 'names':");
-        df.SelectItemsByColname("names");
+        Console.WriteLine("LINQ.select 'Name':");
+        df.SelectItemsByColname("Name");
 
         // создание списка с добавлением шаблона к элементу
-        Console.WriteLine("LINQ.select 'names' + постфикс '_item':");
-        var list = df.AppendPostfixToColname("names", "_item");
+        Console.WriteLine("LINQ.select 'Name' + постфикс '_item':");
+        var list = df.AppendPostfixToColname("Name", "_item");
         foreach (var l in list)
-            Console.Write($"{l}\t");
+            Console.Write($"{l} ");
         Console.WriteLine();
         Console.WriteLine();
 
@@ -201,7 +200,16 @@ internal class Program
 
         Console.WriteLine("end.");
         //Console.ReadLine();
-        
-        
+
+        // переименование столбцов
+        var dict = new Dictionary<string, string>()
+        {
+            {"Id", "id" },
+            {"Name", "names" },
+            {"Pet", "pets" },
+        };
+        df.RenameColumns(dict);
+        Console.WriteLine("Переименование трех столбцов, вывод:");
+        PrintTableOrView(df);
     }
 }

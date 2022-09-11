@@ -181,28 +181,16 @@ namespace DFrameLib
 
         public DataTable DeleteDuplicateRows()
         {
-            /*
-            var htable = new Hashtable();
-            var dlist = new List<DataRow>();
-            int dup = 0;
-            foreach (DataRow row in this.Rows)
-                if (!htable.Contains(row))  htable.Add(row, "1");
-                else
-                {
-                    dlist.Add(row);
-                    dup++;
-                }
-            Console.WriteLine(dup);
-            PrintRows(dlist.ToArray());
-
-            //if (htable[0] == htable[1]) Console.WriteLine("true"); else Console.WriteLine("false");
-            */
             var UniqueRows = this.AsEnumerable().Distinct(DataRowComparer.Default);
             return UniqueRows.CopyToDataTable();
-            
+        }
+
+        public void DeleteDuplicateColumns()
+        {
+            Comparer<DataColumn> defComp = Comparer<DataColumn>.Default;
 
 
-
+            var UniqueColumns = this.AsEnumerable().Distinct(DataRowComparer.Default);
         }
     }
 }
