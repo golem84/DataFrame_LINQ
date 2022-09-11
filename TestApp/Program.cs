@@ -6,6 +6,63 @@ using System;
 
 internal class Program
 {
+    static private void PrintRows(DataRow[] rows)
+    {
+        if (rows.Length == 0)
+        {
+            Console.WriteLine("Записи не найдены.");
+            return;
+        }
+        foreach (var r in rows)
+        {
+            foreach (DataColumn col in r.Table.Columns)
+                if (r[col].GetType() != typeof(DateTime))
+                    Console.Write($"{r[col]}\t");
+                else
+                {
+                    DateTime d = (DateTime)r[col];
+                    Console.Write($"{d.ToShortDateString()}\t");
+                }
+            Console.WriteLine();
+        }
+        Console.WriteLine();
+    }
+
+    // печать таблицы (синие заголовки)
+    static public void PrintTableOrView(DataTable t)
+    {
+        if (t.Columns.Count == 0)    // если нет данных, не выводим
+        {
+            Console.WriteLine("This view has no columns. Nothing to display.");
+            return;
+        }
+        Console.ForegroundColor = ConsoleColor.Blue;
+        for (int i = 0; i < t.Columns.Count; i++)
+            Console.Write($"{t.Columns[i].ColumnName}\t");
+        Console.WriteLine();
+        Console.ResetColor();
+        DataRow[] rows = t.Select();
+        PrintRows(rows);
+    }
+    // печать отображения (красные заголовки)
+    static public void PrintTableOrView(DataView t)
+    {
+        if (t.Table.Columns.Count == 0)     // если нет данных, не выводим
+        {
+            Console.WriteLine("This view has no columns. Nothing to display.");
+            return;
+        }
+        Console.ForegroundColor = ConsoleColor.Red;
+        for (int i = 0; i < t.Table.Columns.Count; i++)
+            Console.Write($"{t.Table.Columns[i].ColumnName}\t");
+        Console.WriteLine();
+        Console.ResetColor();
+        DataRow[] rows = t.Table.Select();
+        PrintRows(rows);
+    }
+
+
+
     static DFrame GetDataFromExcel(string fname)
     {
         // подключаемся к Excel
@@ -82,9 +139,11 @@ internal class Program
             df.AddRow(new object[] { 11, "Alex", DateTime.Parse("08.03.1995"), "dog", 4 });
             df.AddRow(new object[] { 14, "Mary", DateTime.Parse("11.11.1990"), "", 0 });
             df.AddRow(new object[] { 9, "Ann", DateTime.Parse("03.02.1993"), "cat", 2 });
+            df.AddRow(new object[] { 14, "Mary", DateTime.Parse("11.11.1990"), "", 0 });
         }
+        // вывод таблицы
         Console.WriteLine("Вывод таблицы:");
-        df.PrintTable();
+        PrintTableOrView(df.AsDataView());
 
         //Console.WriteLine("Вывод представления со столбцами 'Name', 'Pet'");
         //Console.Write("Введите имена столбцов через пробел для отображения: ");
@@ -95,9 +154,9 @@ internal class Program
 
         // Выборка строк
         Console.WriteLine("Строки, где Name = 'Mary':");
-        df.SelectRows("Name = 'Mary'");
+        PrintRows(df.SelectRows("Name = 'Mary'"));
         Console.WriteLine("Строки, где Pet = 'Cat' или Pet = '', сортировка по убыванию по полю Id:");
-        df.SelectRows("Pet = 'Cat' or Pet = ''", "Id DESC");
+        PrintRows(df.SelectRows("Pet = 'Cat' or Pet = ''", "Id DESC"));
 
         // переименование столбцов
         var dict = new Dictionary<string, string>()
@@ -108,17 +167,15 @@ internal class Program
         };
         df.RenameColumns(dict);
         Console.WriteLine("Переименование трех столбцов, вывод:");
-        df.PrintTable();
+        PrintTableOrView(df);
 
         // LINQ.where
         Console.WriteLine("LINQ.where 1 logic parameter:");
-        df.SelectRowsByColname("pets", "cat");
+        PrintRows(df.SelectRowsByColname("pets", "cat"));
 
-        
         Console.WriteLine("LINQ.where 2 logic parameters:");
-        df.SelectRowsByColname("pets", "cat", 3);
+        PrintRows(df.SelectRowsByColname("pets", "cat", 3));
 
-        
         // LINQ.groupby
         Console.WriteLine("LINQ.groupby 'pets':");
         df.GroupRowsByColname("pets");
@@ -135,8 +192,12 @@ internal class Program
         foreach (var l in list)
             Console.Write($"{l}\t");
         Console.WriteLine();
+        Console.WriteLine();
 
-
+        // Удаление дубликатов строк
+        Console.WriteLine("Удаление дубликатов строк из таблицы:");
+        var newtable = df.DeleteDuplicateRows();
+        PrintTableOrView(newtable);
 
         Console.WriteLine("end.");
         //Console.ReadLine();

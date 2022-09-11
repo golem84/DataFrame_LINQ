@@ -1,10 +1,15 @@
-﻿using System.Data;
+﻿using System.Collections;
+using System.Data;
+using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 // нельзя в библиотеку добавить ссылку для использования COM объектов.
 
 namespace DFrameLib
 {
-    public class DFrame : DataTable
+
+    
+
+    public class DFrame:DataTable
     {
         // добавить колонку:
         // * именованная типизированная пустая,
@@ -36,84 +41,9 @@ namespace DFrameLib
         }
         // Добавляем массив объектов как новую строку в таблицу
         public void AddRow(object[] row) => this.Rows.Add(row);
-        // печать таблицы (синие заголовки)
-        public void PrintTable()
-        {
-            if (this.Columns.Count == 0)    // если нет данных, не выводим
-            {
-                Console.WriteLine("This view has no columns. Nothing to display.");
-                return;
-            }
-            Console.ForegroundColor = ConsoleColor.Blue;
-            for (int i = 0; i < this.Columns.Count; i++)
-                Console.Write($"{this.Columns[i].ColumnName}\t");
-            Console.WriteLine();
-            Console.ResetColor();
-            DataRow[] rows = this.Select();
-            PrintRows(rows);
-        }
-        // печать отображения (красные заголовки)
-        public void PrintView(DataView t)
-        {
-            if (t.Table.Columns.Count == 0)     // если нет данных, не выводим
-            {
-                Console.WriteLine("This view has no columns. Nothing to display.");
-                return;
-            }
-            Console.ForegroundColor = ConsoleColor.Red;
-            for (int i = 0; i < t.Table.Columns.Count; i++)
-                Console.Write($"{t.Table.Columns[i].ColumnName}\t");
-            Console.WriteLine();
-            Console.ResetColor();
-            DataRow[] rows = t.Table.Select();
-            PrintRows(rows);
-        }
-
-        // выбор столбцов по именам
-        // используем копию исходной таблицы
-        public void SelectColByName(params string[] names)
-        {
-            var allnames = "";
-            foreach (string name in names) allnames += name;
-            DataTable newtable = this.Clone(); // копируем структуру исходной таблицы в новую таблицу
-            foreach (DataRow row in this.Rows) // копируем данные из исходной таблицы
-            {
-                var newrow = newtable.Rows.Add();
-                for (int i = 0; i < row.Table.Columns.Count; i++) newrow[i] = row[i];
-            }
-            DataView v = new DataView(newtable); // для новой таблицы создаем отображение
-        newsearch:
-            for (int i = 0; i < v.Table.Columns.Count; i++) // ищем по новой таблице стобцы
-            {
-                if (!allnames.Contains(v.Table.Columns[i].ColumnName))
-                {
-                    v.Table.Columns.RemoveAt(i);    // удаляем ненужные столбцы
-                    goto newsearch;                 // смотрим таблицу сначала, поскольку она изменилась
-                }
-            }
-            PrintView(v);
-        }
-
-        // короткая версия метода выбора столбцов
-        public void SelectColumns(params string[] names)
-        {
-            DataView view = new DataView(this);
-            DataTable values;
-            try
-            {
-                values = view.ToTable(true, names);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return;
-            }
-            view = new DataView(values);
-            PrintView(view);
-        }
-
-        // печать массива строк
-        private void PrintRows(DataRow[] rows )
+        
+        // печать массива DataRow
+        private void PrintRows(DataRow[] rows)
         {
             if (rows.Length == 0)
             {
@@ -135,19 +65,56 @@ namespace DFrameLib
             Console.WriteLine();
         }
 
-        // выборка строк по условию
-        public void SelectRows(string expr)
+        // выбор столбцов по именам
+        // используем копию исходной таблицы
+        public DataTable SelectColByName(params string[] names)
         {
-            DataRow[] rows;
-            rows = this.Select(expr);
-            PrintRows(rows);
+            var allnames = "";
+            foreach (string name in names) allnames += name;
+            DataTable newtable = this.Clone(); // копируем структуру исходной таблицы в новую таблицу
+            foreach (DataRow row in this.Rows) // копируем данные из исходной таблицы
+            {
+                var newrow = newtable.Rows.Add();
+                for (int i = 0; i < row.Table.Columns.Count; i++) newrow[i] = row[i];
+            }
+            DataView v = new DataView(newtable); // для новой таблицы создаем отображение
+        newsearch:
+            for (int i = 0; i < v.Table.Columns.Count; i++) // ищем по новой таблице стобцы
+            {
+                if (!allnames.Contains(v.Table.Columns[i].ColumnName))
+                {
+                    v.Table.Columns.RemoveAt(i);    // удаляем ненужные столбцы
+                    goto newsearch;                 // смотрим таблицу сначала, поскольку она изменилась
+                }
+            }
+            return v.ToTable();
+        }
+
+        // короткая версия метода выбора столбцов
+        public DataTable SelectColumns(params string[] names)
+        {
+            DataView view = new DataView(this);
+            DataTable values;
+            values = view.ToTable(true, names);
+            return values;
+        }
+
+        // печать массива строк
+        
+
+        // выборка строк по условию
+        public DataRow[] SelectRows(string expr)
+        {
+            DataRow[] t;
+            return t = this.Select(expr);
         }
 
         // выборка строк по условию, сортировка по условию
-        public void SelectRows(string expr, string sort)
-        {
-            var rows = this.Select(expr, sort);
-            PrintRows(rows);
+        public DataRow[] SelectRows(string expr, string sort)
+        { 
+            DataRow[] t; 
+            t = this.Select(expr, sort);
+            return t;
         }
 
         // переименование колонок на основе словаря
@@ -164,19 +131,21 @@ namespace DFrameLib
         // метод расширения WHERE выбирает данные и передает в виде коллекции DataRow исходной таблицы
         // для удобства вывода коллекцию DataRow преобразуем в массив DataRow, метод для вывода реализован выше.
         // 1 logic parameter
-        public void SelectRowsByColname(string colname, string s)
+        public DataRow[] SelectRowsByColname(string colname, string s)
         {
             var query = this.AsEnumerable().Where(x => x.Field<string>(colname) == s);
-            PrintRows(query.ToArray());
+            DataRow[] t = query.ToArray();
+            return t;
         }
 
         // 2 logic parameters, вторая форма записи запроса LINQ
-        public void SelectRowsByColname(string colname, string s, int n)
+        public DataRow[] SelectRowsByColname(string colname, string s, int n)
         {
             var query = from r in this.AsEnumerable()
                         where (string)r[colname] == s && (int)r["PetAge"] > n
                         select r;
-            PrintRows(query.ToArray());
+            DataRow[] t = query.ToArray();
+            return t;
         }
 
         // using LINQ.Groupby
@@ -198,6 +167,7 @@ namespace DFrameLib
             var query = this.AsEnumerable().Select(x => x[colname]).ToArray();
             foreach (var q in query)
                 Console.WriteLine($"{q}");
+            Console.WriteLine();
         }
 
         public List<string> AppendPostfixToColname(string colname, string fix)
@@ -209,5 +179,30 @@ namespace DFrameLib
             return newlist;
         }
 
+        public DataTable DeleteDuplicateRows()
+        {
+            /*
+            var htable = new Hashtable();
+            var dlist = new List<DataRow>();
+            int dup = 0;
+            foreach (DataRow row in this.Rows)
+                if (!htable.Contains(row))  htable.Add(row, "1");
+                else
+                {
+                    dlist.Add(row);
+                    dup++;
+                }
+            Console.WriteLine(dup);
+            PrintRows(dlist.ToArray());
+
+            //if (htable[0] == htable[1]) Console.WriteLine("true"); else Console.WriteLine("false");
+            */
+            var UniqueRows = this.AsEnumerable().Distinct(DataRowComparer.Default);
+            return UniqueRows.CopyToDataTable();
+            
+
+
+
+        }
     }
 }
