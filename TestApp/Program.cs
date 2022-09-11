@@ -262,9 +262,12 @@ internal class Program
         //
 
         // вывод DataTable в файл CSV
-        Console.WriteLine("Выводим таблицу в файл CSV");
+        Console.WriteLine("Выводим таблицу в файл CSV, сортировка по столбцу 'DateBirth'.");
         string path = Path.GetDirectoryName(typeof(Program).Assembly.Location) + @"\datatable.csv";
-        CSVClass.ToCSV(df, path);
+        DataView view = df.DefaultView;
+        view.Sort = "DateBirth ASC";
+        CSVClass.ToCSV(view.ToTable(), path);
+        Console.WriteLine();
 
         // работа со списками
         Console.WriteLine("Списки значений");
