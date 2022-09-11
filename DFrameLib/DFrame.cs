@@ -170,10 +170,12 @@ namespace DFrameLib
             PrintRows(query.ToArray());
         }
 
-        // 2 logic parameters
+        // 2 logic parameters, вторая форма записи запроса LINQ
         public void SelectRowsByColname(string colname, string s, int n)
         {
-            var query = this.AsEnumerable().Where(x => x.Field<string>(colname) == s && x.Field<int>("PetAge")> n);
+            var query = from r in this.AsEnumerable()
+                        where (string)r[colname] == s && (int)r["PetAge"] > n
+                        select r;
             PrintRows(query.ToArray());
         }
 
@@ -189,13 +191,23 @@ namespace DFrameLib
         }
 
         // using LINQ.select
-        // метод расширения SELECT преобразует результаты выбора в новый формат (здесь - в строковый массив)
+        // метод расширения SELECT преобразует результаты выбора в новый формат
+        // (здесь - в строковый массив, можно преобразовать в свой тип, схожий со структурой)
         public void SelectItemsByColname(string colname)
         {
-            var query = this.AsEnumerable().Select(x => x.Field<string>(colname)).ToArray();
+            var query = this.AsEnumerable().Select(x => x[colname]).ToArray();
             foreach (var q in query)
                 Console.WriteLine($"{q}");
         }
-        
+
+        public List<string> AppendPostfixToColname(string colname, string fix)
+        {
+            var query = this.AsEnumerable().Select(x => x[colname]).ToList();
+            var newlist = new List<string>();
+            foreach (var q in query)
+                newlist.Add(q.ToString()+fix);
+            return newlist;
+        }
+
     }
 }

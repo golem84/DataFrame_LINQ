@@ -129,28 +129,15 @@ internal class Program
         Console.WriteLine("LINQ.select 'names':");
         df.SelectItemsByColname("names");
 
-        
-
-        /*
-        // LINQ.where 2 logic parameters
-        var query2 = from tab in df.AsEnumerable()
-                    where (tab.Field<string>("pets") == "dog") && 
-                        (tab.Field<DateTime>("DateBirth") > DateTime.Parse("1.1.2003"))
-                    select new { id = tab.Field<int>("id"), name = tab.Field<string>("names"), date = tab.Field<DateTime>("DateBirth") };
-        foreach (var q in query2)
-            Console.WriteLine("У {1} (id={0}) домашнее животное - собака. Его день рождения {2:d}", q.id, q.name, q.date);
-        Console.WriteLine();
-
-        // LINQ.groupby
-        var query = from tab in df.AsEnumerable()
-                     where tab.Field<string>("pets") == "dog"
-                     select new { id = tab.Field<int>("id"), name = tab.Field<string>("names") };
-        foreach (var q in query)
-            Console.WriteLine("У {1} (id={0}) домашнее животное - собака.", q.id, q.name);
+        // создание списка с добавлением шаблона к элементу
+        Console.WriteLine("LINQ.select 'names' + постфикс '_item':");
+        var list = df.AppendPostfixToColname("names", "_item");
+        foreach (var l in list)
+            Console.Write($"{l}\t");
         Console.WriteLine();
 
 
-        */
+
         Console.WriteLine("end.");
         //Console.ReadLine();
         
