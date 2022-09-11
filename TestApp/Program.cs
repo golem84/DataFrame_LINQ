@@ -3,6 +3,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 using System.Data;
 using System.Linq;
 using System;
+using System.IO;
 
 internal class Program
 {
@@ -61,7 +62,49 @@ internal class Program
         PrintRows(rows);
     }
 
+    private static class CSVClass
+    {
+        public static void ToCSV(DataTable dtDataTable, string strFilePath)
+        {
+            StreamWriter sw = new StreamWriter(strFilePath, false);
+            //headers   
+            for (int i = 0; i < dtDataTable.Columns.Count; i++)
+            {
+                sw.Write(dtDataTable.Columns[i]);
+                if (i < dtDataTable.Columns.Count - 1)
+                {
+                    sw.Write(";");
+                }
+            }
+            sw.Write(sw.NewLine);
+            foreach (DataRow dr in dtDataTable.Rows)
+            {
+                for (int i = 0; i < dtDataTable.Columns.Count; i++)
+                {
 
+                    string value = dr[i].ToString();
+                    if (value.GetType() == typeof(DateTime))
+                    {
+                        DateTime d = (DateTime)dr[i];
+                        value = d.ToShortDateString();
+                        sw.Write(value);
+                    }
+                    else
+                    {
+                        sw.Write(dr[i].ToString());
+                    }
+
+                    if (i < dtDataTable.Columns.Count - 1)
+                    {
+                        sw.Write(";");
+                    }
+                }
+                sw.Write(sw.NewLine);
+            }
+            sw.Close();
+        }
+
+    }
 
     static void GetDataFromExcel(string fname, ref DFrame df1)
     {
@@ -149,8 +192,8 @@ internal class Program
         PrintTableOrView(df);
         
         Console.WriteLine("Создаем и заполняем новую таблицу из Excel");
-        //GetDataFromExcel("Book1.xlsx", ref df2);
-        //PrintTableOrView(df2);
+        GetDataFromExcel("Book1.xlsx", ref df2);
+        PrintTableOrView(df2);
 
         Console.WriteLine("Объединение таблиц при помощи метода 'Merge' невозможно, поскольку типы данных у таблиц различны.");
         Console.WriteLine("Далее работаем c первой таблицей, созданной из программы...");
@@ -190,8 +233,8 @@ internal class Program
 
         // создание списка с добавлением шаблона к элементу
         Console.WriteLine("LINQ.select 'Name' + постфикс '_item':");
-        var list = df.AppendPostfixToColname("Name", "_item");
-        foreach (var l in list)
+        var list0 = df.AppendPostfixToColname("Name", "_item");
+        foreach (var l in list0)
             Console.Write($"{l}  ");
         Console.WriteLine();
         Console.WriteLine();
@@ -214,7 +257,46 @@ internal class Program
         Console.WriteLine("Переименование трех столбцов, вывод:");
         PrintTableOrView(df);
 
-        Console.WriteLine("end.");
+        // 
+        // дополнительные задания
+        //
+
+        // вывод DataTable в файл CSV
+        Console.WriteLine("Выводим таблицу в файл CSV");
+        string path = Path.GetDirectoryName(typeof(Program).Assembly.Location) + @"\datatable.csv";
+        CSVClass.ToCSV(df, path);
+
+        // работа со списками
+        Console.WriteLine("Списки значений");
+        var list = new List<int>();
+        Random rnd = new Random();
+        for (int i = 0; i < 280; i++)
+            //list.Add(rnd.Next(0,200));
+            list.Add(i);
+
+        //foreach (var i in list1) Console.Write($"{i} ");
+        var list1 = new List<int>();
+        var list2 = new List<int>();
+
+        for (int i = 99; i < list.Count; i += 100)
+        {
+            list1.AddRange(list.GetRange(i - 50, 50));
+            list2.AddRange(list.GetRange(i + 1, 50));
+        }
+        /*
+        Console.WriteLine("list1:");
+        foreach (var i in list1) Console.Write($"{i} ");
+        Console.WriteLine();
+        Console.WriteLine("list2:");
+        foreach (var i in list2) Console.Write($"{i} ");
+        Console.WriteLine();
+        */
+        Console.WriteLine("result:");
+        for (int i = 0; i < list1.Count; i++)
+            Console.Write(Math.Abs(list1[i] - list2[i]) + "  ");
+        Console.WriteLine();
+
+        Console.WriteLine("Конец программы.");
         Console.ReadLine();
     }
 }

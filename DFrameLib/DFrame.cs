@@ -161,7 +161,7 @@ namespace DFrameLib
 
         // using LINQ.select
         // метод расширения SELECT преобразует результаты выбора в новый формат
-        // (здесь - в строковый массив, можно преобразовать в свой тип, схожий со структурой)
+        // (здесь - в строковый массив, можно преобразовать в свой тип, имеющий сходство со структурой или объектом)
         public void SelectItemsByColname(string colname)
         {
             var query = this.AsEnumerable().Select(x => x[colname]).ToArray();
