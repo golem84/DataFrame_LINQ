@@ -142,7 +142,7 @@ namespace DFrameLib
         public DataRow[] SelectRowsByColname(string colname, string s, int n)
         {
             var query = from r in this.AsEnumerable()
-                        where (string)r[colname] == s && (int)r["PetAge"] > n
+                        where (string)r[colname] == s && (int)r["PetAge"] > (double)n
                         select r;
             DataRow[] t = query.ToArray();
             return t;
@@ -179,18 +179,22 @@ namespace DFrameLib
             return newlist;
         }
 
-        public DataTable DeleteDuplicateRows()
+        public bool CompareRows(DataRow row1, DataRow row2)
         {
-            var UniqueRows = this.AsEnumerable().Distinct(DataRowComparer.Default);
-            return UniqueRows.CopyToDataTable();
+            //bool result = true;
+            for (int i=0; i < row1.ItemArray.Count(); i++)
+                    if (!row1.ItemArray[i].Equals(row2.ItemArray[i]))
+                    { return false; }
+            return true;
         }
 
-        public void DeleteDuplicateColumns()
+        public void DeleteDuplicateRows()
         {
             Comparer<DataColumn> defComp = Comparer<DataColumn>.Default;
-
-
-            var UniqueColumns = this.AsEnumerable().Distinct(DataRowComparer.Default);
+            var UniqueColumns = this.AsEnumerable().Distinct(DataRowComparer.Default).CopyToDataTable();
+            this.Clear();
+            this.Merge(UniqueColumns);
+            this.AcceptChanges();
         }
     }
 }

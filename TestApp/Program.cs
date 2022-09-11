@@ -149,11 +149,14 @@ internal class Program
         PrintTableOrView(df);
         
         Console.WriteLine("Создаем и заполняем новую таблицу из Excel");
-        GetDataFromExcel("Book1.xlsx", ref df2);
-        PrintTableOrView(df2);
+        //GetDataFromExcel("Book1.xlsx", ref df2);
+        //PrintTableOrView(df2);
 
         Console.WriteLine("Объединение таблиц при помощи метода 'Merge' невозможно, поскольку типы данных у таблиц различны.");
         Console.WriteLine("Далее работаем c первой таблицей, созданной из программы...");
+
+        //df.Merge(df2);
+        //PrintTableOrView(df);
 
         //Console.WriteLine("Вывод представления со столбцами 'Name', 'Pet'");
         //Console.Write("Введите имена столбцов через пробел для отображения: ");
@@ -189,17 +192,16 @@ internal class Program
         Console.WriteLine("LINQ.select 'Name' + постфикс '_item':");
         var list = df.AppendPostfixToColname("Name", "_item");
         foreach (var l in list)
-            Console.Write($"{l} ");
+            Console.Write($"{l}  ");
         Console.WriteLine();
         Console.WriteLine();
 
         // Удаление дубликатов строк
         Console.WriteLine("Удаление дубликатов строк из таблицы:");
-        var newtable = df.DeleteDuplicateRows();
-        PrintTableOrView(newtable);
-
-        Console.WriteLine("end.");
-        //Console.ReadLine();
+        //var newtable = df.DeleteDuplicateRows();
+        //PrintTableOrView(newtable);
+        df.DeleteDuplicateRows();
+        PrintTableOrView(df);
 
         // переименование столбцов
         var dict = new Dictionary<string, string>()
@@ -211,5 +213,8 @@ internal class Program
         df.RenameColumns(dict);
         Console.WriteLine("Переименование трех столбцов, вывод:");
         PrintTableOrView(df);
+
+        Console.WriteLine("end.");
+        Console.ReadLine();
     }
 }
