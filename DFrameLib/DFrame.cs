@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Runtime.CompilerServices;
 // нельзя в библиотеку добавить ссылку для использования COM объектов.
 
 namespace DFrameLib
@@ -145,8 +146,7 @@ namespace DFrameLib
         // выборка строк по условию, сортировка по условию
         public void SelectRows(string expr, string sort)
         {
-            DataRow[] rows;
-            rows = this.Select(expr, sort);
+            var rows = this.Select(expr, sort);
             PrintRows(rows);
         }
 
@@ -160,16 +160,40 @@ namespace DFrameLib
             }
         }
 
-        public void SelectRowsBy(params string[] par)
+        // using LINQ.where
+        // 1 logic parameter
+        public void SelectRowsByColname(string colname, string s)
         {
-            var query2 = from tab in this.AsEnumerable()
-                         where (tab.Field<string>("pets") == "dog") &&
-                             (tab.Field<DateTime>("DateBirth") > DateTime.Parse("1.1.2003"))
-                         select new { id = tab.Field<int>("id"), name = tab.Field<string>("names"), date = tab.Field<DateTime>("DateBirth") };
-            foreach (var q in query2)
-                Console.WriteLine("У {1} (id={0}) домашнее животное - собака. Его день рождения {2:d}", q.id, q.name, q.date);
-            Console.WriteLine();
+            var query = this.AsEnumerable().Where(x => x.Field<string>(colname) == s);
+            PrintRows(query.ToArray());
         }
 
+        // 2 logic parameters
+        public void SelectRowsByColname(string colname, string s, int n)
+        {
+            var query = this.AsEnumerable().Where(x => x.Field<string>(colname) == s && x.Field<int>("PetAge")> n);
+            PrintRows(query.ToArray());
+        }
+
+        // using LINQ.Groupby
+        public void GroupRowsByColname(string colname)
+        {
+            var query = this.AsEnumerable().GroupBy(x => x.Field<string>(colname));
+            foreach (var q in query)
+            {
+                Console.WriteLine($"{q.Key}");
+                PrintRows(q.ToArray());
+            }
+            
+            
+        }
+
+        /*
+        public void GroupRowsByColname(string colname)
+        {
+            var query = this.AsEnumerable().
+
+        }
+        */
     }
 }

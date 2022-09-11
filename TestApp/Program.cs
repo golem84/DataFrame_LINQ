@@ -1,7 +1,8 @@
 ﻿using DFrameLib;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Data;
-using Microsoft.Office.Interop.Excel;
+using System.Linq;
+using System;
 
 internal class Program
 {
@@ -73,20 +74,21 @@ internal class Program
             df.Columns.Add("Name", typeof(string));
             df.Columns.Add("DateBirth", typeof(DateTime));
             df.Columns.Add("Pet", typeof(string));
+            df.Columns.Add("PetAge", typeof(int));
 
-            df.AddRow(new object[] { 1, "Ann", DateTime.Parse("01.01.2002"), "dog" });
-            df.AddRow(new object[] { 7, "Mary", DateTime.Parse("25.12.1997"), "cat" });
-            df.AddRow(new object[] { 10, "John", DateTime.Parse("14.07.2005"), "dog" });
-            df.AddRow(new object[] { 11, "Alex", DateTime.Parse("08.03.1995"), "" });
-            df.AddRow(new object[] { 14, "Mary", DateTime.Parse("11.11.1990"), "" });
-            df.AddRow(new object[] { 9, "Ann", DateTime.Parse("03.02.1993"), "cat" });
+            df.AddRow(new object[] { 1, "Ann", DateTime.Parse("01.01.2002"), "dog", 2 });
+            df.AddRow(new object[] { 7, "Mary", DateTime.Parse("25.12.1997"), "cat", 4 });
+            df.AddRow(new object[] { 10, "John", DateTime.Parse("14.07.2005"), "dog", 3 });
+            df.AddRow(new object[] { 11, "Alex", DateTime.Parse("08.03.1995"), "dog", 4 });
+            df.AddRow(new object[] { 14, "Mary", DateTime.Parse("11.11.1990"), "", 0 });
+            df.AddRow(new object[] { 9, "Ann", DateTime.Parse("03.02.1993"), "cat", 2 });
         }
         Console.WriteLine("Вывод таблицы:");
         df.PrintTable();
 
         //Console.WriteLine("Вывод представления со столбцами 'Name', 'Pet'");
-        Console.Write("Введите имена столбцов через пробел для отображения: ");
-        string e = Console.ReadLine();
+        //Console.Write("Введите имена столбцов через пробел для отображения: ");
+        string e = "Name Pet"; // Console.ReadLine();
         string[] t = e.Split(" ");
         //df.SelectColByName(t);
         df.SelectColumns(t);
@@ -94,8 +96,8 @@ internal class Program
         // Выборка строк
         Console.WriteLine("Строки, где Name = 'Mary':");
         df.SelectRows("Name = 'Mary'");
-        Console.WriteLine("Строки, где Pet = 'Cat', сортировка по убыванию по полю Id:");
-        df.SelectRows("Pet = 'Cat'", "Id DESC");
+        Console.WriteLine("Строки, где Pet = 'Cat' или Pet = '', сортировка по убыванию по полю Id:");
+        df.SelectRows("Pet = 'Cat' or Pet = ''", "Id DESC");
 
         // переименование столбцов
         var dict = new Dictionary<string, string>()
@@ -108,15 +110,28 @@ internal class Program
         Console.WriteLine("Переименование трех столбцов, вывод:");
         df.PrintTable();
 
-        // Использование LINQ
-        // LINQ.where 1 logic parameter
-        var query1 = from tab in df.AsEnumerable()
-                    where tab.Field<string>("pets") == "dog"
-                    select new { id = tab.Field<int>("id"), name = tab.Field<string>("names") };
-        foreach (var q in query1)
-            Console.WriteLine("У {1} (id={0}) домашнее животное - собака.", q.id, q.name);
-        Console.WriteLine();
+        // LINQ.where
+        Console.WriteLine("LINQ.where 1 logic parameter:");
+        df.SelectRowsByColname("pets", "cat");
+
         
+        Console.WriteLine("LINQ.where 2 logic parameters:");
+        df.SelectRowsByColname("pets", "cat", 3);
+
+        
+        // LINQ.groupby
+        Console.WriteLine("LINQ.groupby 'pets':");
+        df.GroupRowsByColname("pets");
+        Console.WriteLine("LINQ.groupby 'names':");
+        df.GroupRowsByColname("names");
+        /*
+        // LINQ.select
+        Console.WriteLine("LINQ.select 'names':");
+        df.SelectColByName("names");
+
+        df.SelectByColname2();
+
+        /*
         // LINQ.where 2 logic parameters
         var query2 = from tab in df.AsEnumerable()
                     where (tab.Field<string>("pets") == "dog") && 
@@ -127,13 +142,15 @@ internal class Program
         Console.WriteLine();
 
         // LINQ.groupby
-        var query3 = from tab in df.AsEnumerable()
+        var query = from tab in df.AsEnumerable()
                      where tab.Field<string>("pets") == "dog"
                      select new { id = tab.Field<int>("id"), name = tab.Field<string>("names") };
-        foreach (var q in query1)
+        foreach (var q in query)
             Console.WriteLine("У {1} (id={0}) домашнее животное - собака.", q.id, q.name);
         Console.WriteLine();
 
+
+        */
         Console.WriteLine("end.");
         //Console.ReadLine();
         
